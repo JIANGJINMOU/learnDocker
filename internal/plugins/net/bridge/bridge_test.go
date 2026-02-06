@@ -64,10 +64,15 @@ func TestRunReturnsError(t *testing.T) {
 	
 	// 模拟runner函数，返回一个错误
 	var called bool
+	var calledCmd string
+	var calledArgs []string
 	
 	runner = func(cmd string, args ...string) error {
 		called = true
-		return fmt.Errorf("command failed")
+		calledCmd = cmd
+		calledArgs = args
+		// 模拟runImpl函数的错误格式
+		return fmt.Errorf("%s %s: command failed", cmd, strings.Join(args, " "))
 	}
 	
 	// 调用run函数
