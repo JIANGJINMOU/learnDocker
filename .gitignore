@@ -1,0 +1,26 @@
+# Binaries
+/bin/
+*.exe
+*.dll
+
+# Coverage
+coverage.out
+coverage_*.out
+/cover_*.out
+
+# Logs
+*.log
+
+# Editors/IDE
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Archives and temp
+*.tar
+*.zip
+*.tmp
+
