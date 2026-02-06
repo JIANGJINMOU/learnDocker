@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"example.com/containeredu/internal/images"
 	"example.com/containeredu/internal/paths"
@@ -201,6 +202,9 @@ func copyDir(src, dst string) error {
 	}
 	for _, e := range ents {
 		s := filepath.Join(src, e.Name())
+		if skipInternalDataRoot(s) {
+			continue
+		}
 		d := filepath.Join(dst, e.Name())
 		if e.IsDir() {
 			if err := copyDir(s, d); err != nil {
@@ -217,6 +221,9 @@ func copyDir(src, dst string) error {
 }
 
 func copyFile(src, dst string, mode os.FileMode) error {
+	if skipInternalDataRoot(src) {
+		return nil
+	}
 	in, err := os.Open(src)
 	if err != nil {
 		return err
@@ -256,4 +263,12 @@ func ioCopy(dst *os.File, src *os.File) (int64, error) {
 			return total, err
 		}
 	}
+}
+
+func skipInternalDataRoot(p string) bool {
+	dr := paths.DataRoot()
+	drAbs, _ := filepath.Abs(dr)
+	pAbs, _ := filepath.Abs(p)
+	// skip copying anything under our own data root to avoid recursive self-copy during build
+	return strings.HasPrefix(pAbs, drAbs)
 }
