@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -194,3 +196,113 @@ func TestCopyFileAndDir(t *testing.T) {
 		t.Fatalf("copy mismatch: %q", string(data))
 	}
 }
+
+func TestChildInitMissingArgs(t *testing.T) {
+	// 保存原始参数
+	oldArgs := os.Args
+	defer func() {
+		os.Args = oldArgs
+	}()
+	
+	// 模拟缺少必要参数的情况
+	os.Args = []string{"cede", "init"}
+	
+	// 调用childInit函数
+	err := childInit()
+	
+	// 验证返回错误
+	if err == nil {
+		t.Fatalf("expected error for missing args, got nil")
+	}
+	// 在Windows上，由于不支持chroot，可能会返回不同的错误
+	// 我们只需要验证错误不为nil即可
+}
+
+func TestChildInitInvalidRootfs(t *testing.T) {
+	// 保存原始参数
+	oldArgs := os.Args
+	defer func() {
+		os.Args = oldArgs
+	}()
+	
+	// 模拟指定了无效rootfs的情况
+	os.Args = []string{"cede", "init", "--rootfs", "/nonexistent/path", "--cmd", "/bin/sh"}
+	
+	// 调用childInit函数
+	err := childInit()
+	
+	// 验证返回错误（在Windows上应该是错误，因为chroot不存在）
+	if err == nil {
+		t.Fatalf("expected error for invalid rootfs, got nil")
+	}
+}
+
+func TestRunContainerImageNotFound(t *testing.T) {
+	// 保存原始HOME目录
+	oldHome := os.Getenv("HOME")
+	defer func() {
+		os.Setenv("HOME", oldHome)
+	}()
+	
+	// 创建临时目录作为HOME
+	tmp := t.TempDir()
+	os.Setenv("HOME", tmp)
+	
+	// 测试运行一个不存在的镜像
+	err := runContainer("nonexistent-image", "/bin/sh", []string{}, "test-hostname", "bridge0", "", "", 0)
+	
+	// 验证返回错误
+	if err == nil {
+		t.Fatalf("expected error for non-existent image, got nil")
+	}
+	
+	// 在Windows上，runContainer 函数会返回 "run is only supported on linux" 错误
+	// 我们只需要验证错误不为nil即可
+	if runtime.GOOS != "linux" {
+		if strings.Contains(err.Error(), "only supported on linux") {
+			// 在Windows上，这是预期的错误
+			return
+		}
+	}
+	
+	// 在Linux上，验证错误信息包含"not found"
+	if runtime.GOOS == "linux" && !strings.Contains(err.Error(), "not found") {
+		t.Fatalf("unexpected error message: %v", err)
+	}
+}
+
+func TestRunContainerInvalidImageStructure(t *testing.T) {
+	// 保存原始HOME目录
+	oldHome := os.Getenv("HOME")
+	defer func() {
+		os.Setenv("HOME", oldHome)
+	}()
+	
+	// 创建临时目录作为HOME
+	tmp := t.TempDir()
+	os.Setenv("HOME", tmp)
+	
+	// 创建一个无效的镜像结构（没有layers目录）
+	imageName := "invalid-image"
+	imageRoot := filepath.Join(tmp, ".local", "share", "cede", "images", imageName)
+	if err := os.MkdirAll(imageRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	
+	// 测试运行一个结构无效的镜像
+	err := runContainer(imageName, "/bin/sh", []string{}, "test-hostname", "bridge0", "", "", 0)
+	
+	// 验证返回错误
+	if err == nil {
+		t.Fatalf("expected error for invalid image structure, got nil")
+	}
+	
+	// 在Windows上，runContainer 函数会返回 "run is only supported on linux" 错误
+	// 我们只需要验证错误不为nil即可
+	if runtime.GOOS != "linux" && strings.Contains(err.Error(), "only supported on linux") {
+		// 在Windows上，这是预期的错误
+		return
+	}
+}
+
+

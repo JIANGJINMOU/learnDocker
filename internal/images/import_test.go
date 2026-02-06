@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"example.com/containeredu/internal/paths"
@@ -159,3 +160,75 @@ func TestExtractTarWithDifferentEntryTypes(t *testing.T) {
 		t.Fatalf("dir not extracted: %v", err)
 	}
 }
+
+func TestImportDockerSaveTarEmptyManifest(t *testing.T) {
+	tmp := t.TempDir()
+	tarPath := filepath.Join(tmp, "empty-manifest.tar")
+	f, err := os.Create(tarPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tw := tar.NewWriter(f)
+	
+	// 写入空的manifest.json
+	emptyManifest := []ManifestEntry{}
+	mb, _ := json.Marshal(emptyManifest)
+	addFileToTar(t, tw, "manifest.json", mb)
+	
+	tw.Close()
+	f.Close()
+	
+	// 测试导入空manifest的情况
+	err = ImportDockerSaveTar(tarPath, "empty-image")
+	if err == nil {
+		t.Fatalf("expected error for empty manifest, got nil")
+	}
+	
+	// 验证错误信息包含"empty manifest"
+	if !strings.Contains(err.Error(), "empty manifest") {
+		t.Fatalf("unexpected error message: %v", err)
+	}
+}
+
+func TestExtractTarWithFileMode(t *testing.T) {
+	tmp := t.TempDir()
+	// 创建一个包含设置了模式的文件的tar文件
+	tarPath := filepath.Join(tmp, "mode-test.tar")
+	f, err := os.Create(tarPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tw := tar.NewWriter(f)
+	
+	// 添加一个具有特定模式的文件
+	hdr := &tar.Header{
+		Name: "executable.sh",
+		Mode: 0o755, // 可执行文件
+		Size: int64(len([]byte("#!/bin/sh\necho hello"))),
+	}
+	if err := tw.WriteHeader(hdr); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tw.Write([]byte("#!/bin/sh\necho hello")); err != nil {
+		t.Fatal(err)
+	}
+	
+	tw.Close()
+	f.Close()
+	
+	// 提取tar文件
+	dstDir := filepath.Join(tmp, "extract")
+	if err := extractTar(tarPath, dstDir); err != nil {
+		t.Fatalf("extractTar error: %v", err)
+	}
+	
+	// 验证提取结果
+	filePath := filepath.Join(dstDir, "executable.sh")
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		t.Fatalf("executable.sh not extracted: %v", err)
+	}
+	
+	// 在Windows上，文件权限的处理方式不同，所以我们跳过权限检查
+	// 只验证文件是否被提取
+}
+

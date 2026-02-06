@@ -120,3 +120,19 @@ func TestSaveCreatesDirs(t *testing.T) {
 		t.Fatalf("state file not created: %v", err)
 	}
 }
+
+func TestListNonExistentDirectory(t *testing.T) {
+	tmp := t.TempDir()
+	os.Setenv("HOME", tmp)
+	// 确保containers目录不存在
+	root := paths.ContainersRoot()
+	_ = os.RemoveAll(root)
+	// 测试List函数在目录不存在时的行为
+	items, err := List()
+	if err == nil {
+		t.Fatalf("expected error when directory does not exist, got nil")
+	}
+	if items != nil {
+		t.Fatalf("expected nil items when directory does not exist, got %+v", items)
+	}
+}
