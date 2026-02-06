@@ -4,7 +4,7 @@ package overlay
 
 import "testing"
 
-func TestJoinLower(t *testing.T) {
+func TestJoinLowerAlt(t *testing.T) {
 	s := joinLower([]string{"a", "b", "c"})
 	if s != "a:b:c" {
 		t.Fatalf("unexpected: %s", s)

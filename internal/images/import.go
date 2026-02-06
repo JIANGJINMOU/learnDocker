@@ -13,9 +13,9 @@ import (
 )
 
 type ManifestEntry struct {
-	Config       string   `json:"Config"`
-	RepoTags     []string `json:"RepoTags"`
-	Layers       []string `json:"Layers"`
+	Config   string   `json:"Config"`
+	RepoTags []string `json:"RepoTags"`
+	Layers   []string `json:"Layers"`
 }
 
 // ImportDockerSaveTar imports a docker save tarball into local image store.

@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"example.com/containeredu/internal/images"
+	"example.com/containeredu/internal/netpool"
 	"example.com/containeredu/internal/paths"
 	"example.com/containeredu/internal/state"
-	"example.com/containeredu/internal/netpool"
 )
 
 type dfLine struct {

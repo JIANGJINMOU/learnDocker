@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"example.com/containeredu/internal/cgroups"
-	netplug "example.com/containeredu/internal/plugins/net"
+	"example.com/containeredu/internal/id"
 	"example.com/containeredu/internal/overlay"
 	"example.com/containeredu/internal/paths"
+	netplug "example.com/containeredu/internal/plugins/net"
 	"example.com/containeredu/internal/state"
-	"example.com/containeredu/internal/id"
 )
 
 func runContainer(image, command string, args []string, hostname, netPlugin, cpuMax, memMax string, pidsMax int) error {
@@ -133,5 +133,3 @@ func childInit() error {
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
-
- 

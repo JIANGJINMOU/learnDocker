@@ -8,7 +8,7 @@ import (
 
 type Plugin struct{}
 
-func (Plugin) Name() string { return "bridge0" }
+func (Plugin) Name() string                                      { return "bridge0" }
 func (Plugin) Setup(containerID string, pid int) (string, error) { return "", nil }
 
 func init() {

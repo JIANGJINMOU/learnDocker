@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"strings"
 
-	nreg "example.com/containeredu/internal/plugins/net"
 	"example.com/containeredu/internal/netpool"
+	nreg "example.com/containeredu/internal/plugins/net"
 )
 
 type Plugin struct {
