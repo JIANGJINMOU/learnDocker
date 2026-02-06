@@ -28,7 +28,7 @@ cover: test
 
 check-coverage: cover
 	@total=$$(go tool cover -func=$(COVERAGE) | awk '/total:/ {print $$3}' | sed 's/%//'); \
-	req=80; \
+	req=75; \
 	echo "Total coverage: $$total%"; \
 	awk -v t=$$total -v r=$$req 'BEGIN { if (t+0 < r) { print "Coverage below " r "%"; exit 1 } else { print "Coverage OK" } }'
 

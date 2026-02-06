@@ -73,6 +73,10 @@ func (p Plugin) Setup(containerID string, pid int) (string, error) {
 }
 
 func run(cmd string, args ...string) error {
+	return runner(cmd, args...)
+}
+
+func runImpl(cmd string, args ...string) error {
 	c := exec.Command(cmd, args...)
 	out, err := c.CombinedOutput()
 	if err != nil {
@@ -81,7 +85,7 @@ func run(cmd string, args ...string) error {
 	return nil
 }
 
-var runner = run
+var runner = runImpl
 
 func init() {
 	nreg.Register(Plugin{
