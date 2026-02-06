@@ -14,8 +14,15 @@ type Limits struct {
 	PidsMax  int
 }
 
+func rootPath() string {
+	if v := os.Getenv("CEDE_CGROUP_ROOT"); v != "" {
+		return v
+	}
+	return "/sys/fs/cgroup"
+}
+
 func ApplyV2(containerID string, pid int, lim Limits) error {
-	root := "/sys/fs/cgroup"
+	root := rootPath()
 	group := filepath.Join(root, "cede", containerID)
 	if err := os.MkdirAll(group, 0o755); err != nil {
 		return err

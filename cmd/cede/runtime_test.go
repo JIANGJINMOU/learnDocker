@@ -130,6 +130,7 @@ func TestSplitKeywordNoSpace(t *testing.T) {
 func TestListContainersOutput(t *testing.T) {
 	tmp := t.TempDir()
 	os.Setenv("HOME", tmp)
+	os.Setenv("USERPROFILE", tmp)
 	// create state file
 	if err := os.MkdirAll(filepath.Join(tmp, ".local", "share", "cede", "containers"), 0o755); err != nil {
 		t.Fatal(err)
