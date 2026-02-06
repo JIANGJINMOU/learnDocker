@@ -116,3 +116,46 @@ func writeFileToTar(t *testing.T, tw *tar.Writer, name string, src string) {
 	}
 	addFileToTar(t, tw, name, data)
 }
+
+func TestExtractTarWithDifferentEntryTypes(t *testing.T) {
+	tmp := t.TempDir()
+	// 创建一个包含不同类型条目的tar文件
+	tarPath := filepath.Join(tmp, "test.tar")
+	f, err := os.Create(tarPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tw := tar.NewWriter(f)
+	
+	// 添加普通文件
+	addFileToTar(t, tw, "file.txt", []byte("content"))
+	
+	// 添加目录
+	hdr := &tar.Header{
+		Name: "dir/",
+		Mode: 0o755,
+		Typeflag: tar.TypeDir,
+	}
+	if err := tw.WriteHeader(hdr); err != nil {
+		t.Fatal(err)
+	}
+	
+	// 在Windows上，创建符号链接需要管理员权限，所以我们跳过符号链接部分
+	// 只测试普通文件和目录的提取
+	tw.Close()
+	f.Close()
+	
+	// 提取tar文件
+	dstDir := filepath.Join(tmp, "extract")
+	if err := extractTar(tarPath, dstDir); err != nil {
+		t.Fatalf("extractTar error: %v", err)
+	}
+	
+	// 验证提取结果
+	if _, err := os.Stat(filepath.Join(dstDir, "file.txt")); os.IsNotExist(err) {
+		t.Fatalf("file.txt not extracted: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dstDir, "dir")); os.IsNotExist(err) {
+		t.Fatalf("dir not extracted: %v", err)
+	}
+}
