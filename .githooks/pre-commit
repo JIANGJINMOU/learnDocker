@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-commit] formatting..."
+go fmt ./...
+echo "[pre-commit] vet..."
+go vet ./...
+echo "[pre-commit] tests..."
+go test ./... -coverprofile=coverage.out -covermode=atomic
+
+echo "[pre-commit] done."

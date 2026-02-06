@@ -1,0 +1,17 @@
+mode: atomic
+example.com/containeredu/internal/state/state.go:24.35,25.43 1 1
+example.com/containeredu/internal/state/state.go:25.43,27.3 1 0
+example.com/containeredu/internal/state/state.go:28.2,31.34 4 1
+example.com/containeredu/internal/state/state.go:34.39,37.16 3 1
+example.com/containeredu/internal/state/state.go:37.16,39.3 1 0
+example.com/containeredu/internal/state/state.go:40.2,41.28 2 1
+example.com/containeredu/internal/state/state.go:41.28,42.16 1 1
+example.com/containeredu/internal/state/state.go:42.16,43.12 1 0
+example.com/containeredu/internal/state/state.go:45.3,45.40 1 1
+example.com/containeredu/internal/state/state.go:45.40,46.12 1 0
+example.com/containeredu/internal/state/state.go:48.3,49.17 2 1
+example.com/containeredu/internal/state/state.go:49.17,50.12 1 0
+example.com/containeredu/internal/state/state.go:52.3,53.47 2 1
+example.com/containeredu/internal/state/state.go:53.47,54.12 1 0
+example.com/containeredu/internal/state/state.go:56.3,56.23 1 1
+example.com/containeredu/internal/state/state.go:58.2,58.17 1 1
